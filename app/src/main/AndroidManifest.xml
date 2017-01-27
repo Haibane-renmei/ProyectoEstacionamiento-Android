@@ -24,7 +24,10 @@
             </intent-filter>
         </activity>
         <activity android:name=".selector" />
-        <activity android:name=".estacion" />
+        <activity android:name=".estacion"
+            android:noHistory="true"
+            />
+        <activity android:name=".salida" />
     </application>
 
 </manifest>

@@ -17,6 +17,17 @@ import android.content.Intent;
 
 public class selector extends AppCompatActivity {
 
+    String email;
+    String password;
+
+    public void init(Bundle B) {
+        if (B != null)
+        {
+            email = B.getString("email");
+            password = B.getString("password");
+        }
+    }
+
 
 
     @Override
@@ -28,6 +39,8 @@ public class selector extends AppCompatActivity {
     public void goEstac(View view) {
         String pageNumber = view.getTag().toString();
         Intent i = new Intent(this, estacion.class);
+        i.putExtra("email",email);
+        i.putExtra("pass",password);
 
         if (pageNumber.equals("1")) {
             i.putExtra("id", 1);

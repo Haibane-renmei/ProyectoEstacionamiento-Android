@@ -60,6 +60,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     String email;
     String password;
 
+
     /**
      * Id to identity READ_CONTACTS permission request.
      */
@@ -379,7 +380,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             showProgress(false);
 
             if (success) {
-                startActivity(new Intent(LoginActivity.this, selector.class));
+                Intent i = new Intent(LoginActivity.this, selector.class);
+                i.putExtra("email",email);
+                i.putExtra("pass",password);
+                startActivity(i);
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

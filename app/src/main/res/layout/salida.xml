@@ -12,6 +12,7 @@
 
         <Button
             android:text="Salida"
+            android:onClick="goExit"
             android:layout_width="140dp"
             android:layout_height="120dp"
             android:id="@+id/button19"

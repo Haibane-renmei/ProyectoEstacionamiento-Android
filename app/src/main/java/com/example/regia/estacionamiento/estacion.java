@@ -1,10 +1,14 @@
 package com.example.regia.estacionamiento;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -22,12 +26,13 @@ public class estacion extends AppCompatActivity {
     //Bundle b = getIntent().getExtras();
     int id;
     String puestom;
-
+    String email;
+    String password;
 
     public void init(Bundle B) {
-        id = 1;
-        if (B != null )
-        {
+        if (B != null) {
+            email = B.getString("email");
+            password = B.getString("password");
             id = B.getInt("id");
         }
     }
@@ -47,10 +52,14 @@ public class estacion extends AppCompatActivity {
         }
     };
 
-    public void goPuesto (View view) {
+    public void goPuesto (View view) throws InterruptedException {
         final String puesto = view.getTag().toString();
+        final int[][] status = {new int[1]};
         puestom = puesto;
         Thread thread = new Thread(new Runnable() {
+
+            private volatile int value;
+
             @Override
             public void run() {
                 try
@@ -79,9 +88,10 @@ public class estacion extends AppCompatActivity {
                     }
                     System.out.println("POST Respon " + sb.toString());
                     if (Long.parseLong(sb.toString()) == 0) {
+                        status[0][0] = Integer.parseInt(puesto);
                         writer.close();
-                        setContentView(R.layout.salida);
                     } else {
+                        status[0][0] = 0;
                         writer.close();
                     }
                 } catch (
@@ -91,56 +101,44 @@ public class estacion extends AppCompatActivity {
                 {
                     Log.e("MYAPP", "exception", e);
                 }
+
             }
+
+            public int getValue() {
+                return value;
+            }
+
+
         });
         thread.start();
-    }
+        thread.join();
 
-    public boolean salida(View view) {
-        final String puesto = puestom;
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try
+        if (status[0][0] > 0) {
+            Intent i = new Intent(this, salida.class);
+            i.putExtra("puesto", status[0][0]);
+            startActivity(i);
+            finish();
+        } else {
 
-                {
-                    String query = "puesto =" + puesto;
+            Context context = view.getContext();
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(context);
+            builder1.setMessage("Puesto Ocupado");
+            builder1.setCancelable(true);
 
-                    URL url = new URL("ttp://192.168.43.220:3000/setsalida");
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    //connection.setRequestProperty("Cookie", cookie);
-                    //Set to POST
-                    connection.setDoOutput(true);
-                    connection.setRequestMethod("POST");
-                    connection.setReadTimeout(10000);
-                    Writer writer = new OutputStreamWriter(connection.getOutputStream());
-                    writer.write(query);
-                    writer.flush();
+            builder1.setPositiveButton(
+                    "Ok",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                            finish();
+                        }
+                    });
 
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    StringBuilder sb = new StringBuilder();
-                    String line = null;
+            AlertDialog alert11 = builder1.create();
+            alert11.show();
 
-                    while ((line = reader.readLine()) != null) {
-                        sb.append(line);
-                    }
-                    System.out.println("POST Respon " + sb.toString());
-                    if (Long.parseLong(sb.toString()) == 0) {
-                        writer.close();
-                        setContentView(R.layout.selector);
-                    } else {
-                        writer.close();
-                    }
-                } catch (
-                        Exception e
-                        )
 
-                {
-                    Log.e("MYAPP", "exception", e);
-                }
-            }
-        });
-        return true;
+        }
 
     }
 }
